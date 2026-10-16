@@ -1,5 +1,6 @@
 package es.upm.dit.aled.lab3.binary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,7 +80,82 @@ public class FASTAReaderSuffixes extends FASTAReader {
 	@Override
 	public List<Integer> search(byte[] pattern) {
 		// TODO
-		return null;
+		List<Integer> resultado = new ArrayList<Integer>();
+		
+		int h =  suffixes.length;
+		int l = 0;
+		int indice = 0;
+		
+		int m;
+		int posSuffix;
+		
+		boolean encontrado = false;
+		int posInSuffixes = 0;
+		
+		while(!encontrado && ((h-l)>1)) {
+			m = (l+h)/2;
+			posSuffix = suffixes[m].suffixIndex;
+			
+			if(pattern[indice] == content[posSuffix + indice]) {
+				indice++;
+			}
+			
+			if(indice == pattern.length && (pattern[indice-1] ==content[posSuffix + indice -1])) {
+				resultado.add(posSuffix);
+				encontrado = true;
+				posInSuffixes = m;
+			}
+			
+			else if(pattern[indice]<content[posSuffix+indice]){
+				h = m--;
+				indice=0;
+			}
+			
+			else if(pattern[indice]>content[posSuffix+indice]) {
+				l = m++;
+				indice=0;
+			}
+			
+			if(encontrado == true) {
+				int indexSubstract = 1;
+				while(true) {
+					posSuffix = suffixes[posInSuffixes - indexSubstract].suffixIndex;
+					boolean isAlsoMatch = true;
+					for(int s=0; s<pattern.length;s++) {
+						if(pattern[s] != content[posSuffix+s]) {
+							isAlsoMatch = false;
+							break;
+						}
+					}
+					if(isAlsoMatch==true) {
+						resultado.add(posSuffix);
+						indexSubstract++;
+					} else {
+						break;
+					}
+				}
+				
+				int indexAdd = 1;
+				while(true) {
+					posSuffix = suffixes[posInSuffixes + indexAdd].suffixIndex;
+					boolean isAlsoMatch = true;
+					for(int s=0; s<pattern.length;s++) {
+						if(pattern[s] != content[posSuffix + s]) {
+							isAlsoMatch = false;
+							break;
+						}
+					}
+					if(isAlsoMatch==true) {
+						resultado.add(posSuffix);
+						indexAdd++;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+		
+		return resultado;
 	}
 
 	public static void main(String[] args) {
